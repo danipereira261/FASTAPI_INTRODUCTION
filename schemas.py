@@ -1,5 +1,6 @@
-from typing import List
 from pydantic import BaseModel
+from typing import List
+
 
 class UserCreateInput(BaseModel):
     name: str
@@ -8,6 +9,7 @@ class UserCreateInput(BaseModel):
 class UserFavoriteAddInput(BaseModel):
     user_id: int
     symbol: str
+
 
 class StandardOutput(BaseModel):
     message: str
@@ -23,7 +25,8 @@ class Favorite(BaseModel):
     user_id: int
 
     class Config:
-        orm_mode=True
+        orm_mode = True
+
 
 class UserListOutput(BaseModel):
     id: int
@@ -33,3 +36,8 @@ class UserListOutput(BaseModel):
     class Config:
         orm_mode = True
 
+
+class DaySummaryOutput(BaseModel):
+    highest: float
+    lowest: float
+    symbol: str

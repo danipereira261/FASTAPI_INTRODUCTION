@@ -1,8 +1,9 @@
+from datetime import date, timedelta
+from aiohttp import ClientSession
 from select import select
 from sqlalchemy.ext.asyncio.session import async_session
 from sqlalchemy.future import select
 from sqlalchemy import delete
-
 from database.models import Favorite, User
 from database.connection import async_session
 
@@ -19,9 +20,14 @@ class UserService:
             await session.commit()
 
     async def list_user():
-            async with async_session() as session:
-                result = await session.execute(select(User).where())
-                return result.scalars().all()
+        async with async_session() as session:
+            result = await session.execute(select(User).where())
+            return result.scalars().all()
+
+    async def get_by_id(user_id):
+        async with async_session() as session:
+            result = await session.execute(select(User).where(User.id == user_id))
+            return result.scalar()
 
 
 class FavoriteService:
@@ -34,3 +40,17 @@ class FavoriteService:
         async with async_session() as session:
             await session.execute(delete(Favorite).where(Favorite.user_id == user_id, Favorite.symbol == symbol))
             await session.commit()
+
+
+class AssetService:
+    async def day_summary(symbol: str):
+        async with ClientSession() as session:
+            yesterday = date.today() - timedelta(days=1)
+            url = f'https://www.mercadobitcoin.net/api/{symbol}/day-summary/{yesterday.year}/{yesterday.month}/{yesterday.day}/'
+            response = await session.get(url)
+            data = await response.json()
+            return {
+                'highest': data['highest'],
+                'lowest': data['lowest'],
+                'symbol': symbol
+            }

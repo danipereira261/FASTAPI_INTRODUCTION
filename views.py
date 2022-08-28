@@ -1,6 +1,6 @@
-from unicodedata import name
+from typing import List
 from fastapi import APIRouter, HTTPException
-from schemas import StandardOutput, UserCreateInput, ErrorOutput, UserFavoriteAddInput
+from schemas import StandardOutput, UserCreateInput, ErrorOutput, UserFavoriteAddInput, UserListOutput
 from services import UserService, FavoriteService
 
 user_router = APIRouter(prefix="/user")
@@ -39,5 +39,13 @@ async def user_delete(user_id: int, symbol: str):
     try:
         await FavoriteService.remove_favorite(user_id=user_id, symbol=symbol)
         return StandardOutput(message="Ok")
+    except Exception as error:
+        raise HTTPException(400, detail=str(error))
+
+
+@user_router.get("/list", response_model=List[UserListOutput], responses={400:{"model": ErrorOutput}})
+async def user_list():
+    try:
+        return await UserService.list_user()
     except Exception as error:
         raise HTTPException(400, detail=str(error))

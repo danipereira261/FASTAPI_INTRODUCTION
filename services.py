@@ -1,4 +1,6 @@
+from select import select
 from sqlalchemy.ext.asyncio.session import async_session
+from sqlalchemy.future import select
 from sqlalchemy import delete
 
 from database.models import Favorite, User
@@ -15,6 +17,11 @@ class UserService:
         async with async_session() as session:
             await session.execute(delete(User).where(User.id == user_id))
             await session.commit()
+
+    async def list_user():
+            async with async_session() as session:
+                result = await session.execute(select(User).where())
+                return result.scalars().all()
 
 
 class FavoriteService:
